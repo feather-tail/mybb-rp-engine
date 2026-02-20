@@ -1422,7 +1422,14 @@ function symposium_private_start()
 
 	if (!symposium_pm_ui_enabled()) {
 
-		if (($mybb->input['action'] ?? '') === 'read' && !empty($mybb->input['convid'])) {
+				$action = (string)($mybb->input['action'] ?? '');
+
+		if (in_array($action, ['new_message', 'delete_conversations'], true)) {
+			header('Location: private.php');
+			exit;
+		}
+
+		if ($action === 'read' && !empty($mybb->input['convid'])) {
 
 			$convid = $db->escape_string((string)$mybb->get_input('convid'));
 			$query = $db->simple_select(
@@ -1437,6 +1444,9 @@ function symposium_private_start()
 				header('Location: private.php?action=read&pmid=' . $pmid);
 				exit;
 			}
+			
+			header('Location: private.php');
+			exit;
 		}
 
 		return;
