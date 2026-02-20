@@ -1,0 +1,48 @@
+#qs-wrap {
+  position: fixed;
+  bottom: var(--qs-bottom, 24px);
+  z-index: var(--qs-z, 9999);
+  display: flex;
+  flex-direction: column;
+  gap: var(--qs-gap, 10px);
+}
+
+#qs-wrap.qs-right {
+  right: var(--qs-side, 24px);
+  left: auto;
+}
+
+#qs-wrap.qs-left {
+  left: var(--qs-side, 24px);
+  right: auto;
+}
+
+#qs-wrap .qs-btn {
+  width: var(--qs-size, 44px);
+  height: var(--qs-size, 44px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+#qs-wrap .qs-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+#qs-wrap .qs-btn svg {
+  width: 60%;
+  height: 60%;
+  fill: currentColor;
+}
+
+#qs-wrap .qs-hidden {
+  display: none !important;
+}

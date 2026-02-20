@@ -1,0 +1,134 @@
+/**
+ * Enhanced Account Switcher for MyBB 1.8
+ * Copyright (c) 2012-2017 doylecc
+ * http://mybbplugins.tk
+ *
+ *
+ */
+.as_menu {
+	display: block;
+	padding: 0;
+	overflow: auto;
+	position: fixed;
+	left: -300px;
+	top: 0;
+	padding-top: 80px;
+	width: 300px;
+	height: 100%;
+	z-index: 11;
+
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+	.as_menu ul {
+		margin-top: 40px;
+	}
+		.as_menu ul li {
+			display: inline-block;
+			width: 100%;
+			list-style: none;
+			font-size: 12px;
+			padding: 3px 0px;
+			text-align: left;
+		}
+			.as_menu ul li:before {
+				content: '';
+				margin-right: 5px;
+				color: rgba( 255, 255, 255, 0.2 );
+			}
+
+.as_menu.isOpen {
+	-webkit-transform: translate(300px; 0);
+	-moz-transform: translate(300px; 0);
+	-ms-transform: translate(300px; 0);
+	-o-transform: translate(300px; 0);
+	transform: translate(300px, 0);
+}
+
+/**
+ * Hint graphic that appears while menu is inactive
+ */
+.as_menu-arrow {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 10;
+	background: rgba( 255, 255, 255, 0.2 );
+	width: 10px;
+	height: 100%;
+	border: 5px solid transparent;
+
+	-webkit-transition: opacity 0.4s ease 0.4s;
+	   -moz-transition: opacity 0.4s ease 0.4s;
+	    -ms-transition: opacity 0.4s ease 0.4s;
+	     -o-transition: opacity 0.4s ease 0.4s;
+	        transition: opacity 0.4s ease 0.4s;
+}
+
+/**
+ *  Right sidebar
+ */
+
+.as_menu-right {
+	display: block;
+	padding: 0;
+	overflow: auto;
+	position: fixed;
+	right: -300px;
+	top: 0;
+	padding-top: 80px;
+	width: 300px;
+	height: 100%;
+	z-index: 11;
+
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+	.as_menu-right ul {
+		margin-top: 40px;
+	}
+		.as_menu-right ul li {
+			display: inline-block;
+			width: 100%;
+			list-style: none;
+			font-size: 12px;
+			padding: 3px 0px;
+			text-align: left;
+		}
+			.as_menu-right ul li:before {
+				content: '';
+				margin-right: 5px;
+				color: rgba( 255, 255, 255, 0.2 );
+			}
+
+.as_menu-right.isOpen {
+	-webkit-transform: translate(-300px; 0);
+	-moz-transform: translate(-300px; 0);
+	-ms-transform: translate(-300px; 0);
+	-o-transform: translate(300px; 0);
+	transform: translate(-300px, 0);
+}
+
+/**
+ * Hint graphic that appears while menu is inactive
+ */
+.as_menu-arrow-right {
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 10;
+	background: rgba( 255, 255, 255, 0.2 );
+	width: 10px;
+	height: 100%;
+	border: 5px solid transparent;
+
+	-webkit-transition: opacity 0.4s ease 0.4s;
+	   -moz-transition: opacity 0.4s ease 0.4s;
+	    -ms-transition: opacity 0.4s ease 0.4s;
+	     -o-transition: opacity 0.4s ease 0.4s;
+	        transition: opacity 0.4s ease 0.4s;
+}

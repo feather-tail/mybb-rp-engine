@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<accountswitcher>
+    <template>
+        <title>accountswitcher_accountlist</title>
+        <tpl><![CDATA[<html>
+                    <head>
+                        <title>{$settings['bbname']} - {$lang->aj_accountlist}</title>
+                        {$headerinclude}
+                    </head>
+                    <body>
+                        {$header}
+                        <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                            <tr>
+                                <td class="thead" {$colspan_head}><strong>{$lang->aj_accountlist}</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="trow1" style="padding-left:30px;">
+                                    <strong>{$lang->aj_masteraccount}</strong>
+                                </td>
+                                {$profile_head}
+                                <td class="trow1" style="padding-left:30px;">
+                                    <strong>{$lang->aj_profile}</strong>
+                                </td>
+                                {$profile_head}
+                            </tr>
+                            {$accountlist_masterbit}
+                        </table>
+                        {$multipage}
+                        {$footer}
+                    </body>
+                </html>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_master</title>
+        <tpl><![CDATA[<tr><td class="trow1 acclist_mast" {$master_width}>{$masterAvatar}{$cardbreak}{$masterlink}</td>{$profile_field}<td class="trow1" {$colspan}><table width="100%">]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_attached</title>
+        <tpl><![CDATA[<tr><td class="trow1 acclist_att">{$attachedAvatar}{$cardbreak}{$attachedlink}</td>{$profilefield_attached}{$tb_row}]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_endbit</title>
+        <tpl><![CDATA[{$as_accountlist_hidden}
+                        </table>
+                    </td>
+                </tr>
+                ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_hidden</title>
+        <tpl><![CDATA[<tr><td class="trow1" style="padding: 8px 0 0 65px;">{$lang->aj_hidden}</td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_shared</title>
+        <tpl><![CDATA[<tr><td class="trow1" style="padding-left: 30px;">{$lang->as_isshared}</td>{$profile_field}<td class="trow1" {$colspan}><table width="100%">]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_card</title>
+        <tpl><![CDATA[<html>
+    <head>
+        <title>{$settings['bbname']} - {$lang->aj_accountlist}</title>
+        {$headerinclude}
+    </head>
+    <body>
+        {$header}
+        <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+            <tr>
+                <td class="thead"><strong>{$lang->aj_accountlist}</strong></td>
+            </tr>
+            <tr>
+                <td class="trow1">
+                    {$accountlist_masterbit}
+                </td>
+            </tr>
+        </table>
+        {$multipage}
+        {$footer}
+    </body>
+</html>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_master_card</title>
+        <tpl><![CDATA[<div class="trow1 acclist_outer">
+    <div class="trow2 acclist_card_mast">{$masterAvatar}{$cardbreak}{$masterlink}<br />{$profile_field}</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_attached_card</title>
+        <tpl><![CDATA[<div class="trow1 acclist_card_att">
+    {$attachedAvatar}{$cardbreak}{$attachedlink}<br /><br />
+    {$profilefield_attached}
+</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_endbit_card</title>
+        <tpl><![CDATA[{$as_accountlist_hidden}
+</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_hidden_card</title>
+        <tpl><![CDATA[<div class="trow1 acclist_card_hidden">{$lang->aj_hidden}</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_accountlist_shared_card</title>
+        <tpl><![CDATA[<div class="trow1 acclist_outer">
+    <div class="trow2 acclist_card_mast">{$lang->as_isshared}</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profilefield_card</title>
+        <tpl><![CDATA[<span class="trow2 profile_card_mast">{$profilefield}</span>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profilefield_attached_card</title>
+        <tpl><![CDATA[<span class="trow2 profile_card_att">{$profilefield}</span>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_nav</title>
+        <tpl><![CDATA[<tbody><tr><td class="trow1 smalltext"><a href="usercp.php?action=as_edit" class="usercp_nav_item usercp_nav_usergroups">{$lang->as_name}</a></td></tr></tbody>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_options</title>
+        <tpl><![CDATA[<form method="post" action="usercp.php" id="accountswitcher">
+                        <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                        <input type="hidden" name="manage" value="accountswitcher" />
+                            {$as_usercp_input}
+                        </table>
+                        </form>
+                        <script type="text/javascript">
+                        <!--
+                            if(use_xmlhttprequest == "1")
+                            {
+                                MyBB.select2();
+                                $("#accountswitcherusername").select2({
+                                    placeholder: "{$lang->search_user}",
+                                    minimumInputLength: 2,
+                                    multiple: false,
+                                    allowClear: true,
+                                    ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                                        url: "xmlhttp.php?action=get_users",
+                                        dataType: "json",
+                                        data: function (term, page) {
+                                            return {
+                                                query: term, // search term
+                                            };
+                                        },
+                                        results: function (data, page) { // parse the results into the format expected by Select2.
+                                            // since we are using custom formatting functions we do not need to alter remote JSON data
+                                            return {results: data};
+                                        }
+                                    },
+                                    initSelection: function(element, callback) {
+                                        var query = $(element).val();
+                                        if (query !== "") {
+                                            $.ajax("xmlhttp.php?action=get_users", {
+                                                data: {
+                                                    query: query
+                                                },
+                                                dataType: "json"
+                                            }).done(function(data) { callback(data); });
+                                        }
+                                    },
+                                   // Allow the user entered text to be selected as well
+                                   createSearchChoice:function(term, data) {
+                                        if ( $(data).filter( function() {
+                                            return this.text.localeCompare(term)===0;
+                                        }).length===0) {
+                                            return {id:term, text:term};
+                                        }
+                                    },
+                                });
+                            }
+                            // -->
+                        </script>
+                        {$as_sec_account}
+                        {$as_usercp_buddyshare}]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_attached_userbit</title>
+        <tpl><![CDATA[<tr><td>
+                            <form method="post" action="usercp.php">
+                            <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                            <input type="hidden" name="action" value="as_detachuser" />
+                            <input type="hidden" name="uid" value="{$attachedOneUID}" />
+                            <table width="100%" border="0" style="border:1px solid #000;margin:2px 0;padding:3px;" class="trow1">
+                                <tr>
+                                    <td>{$attachedOneName}</td>
+                                    <td align="right">
+                                        <input type="submit" value="{$lang->as_detachuser}" name="{$lang->as_detachuser}" class="button" />
+                                    </td>
+                                </tr>
+                            </table>
+                            </form>
+                        </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_attached_users</title>
+        <tpl><![CDATA[<td class="trow1" valign="top">
+                            <fieldset class="trow2">
+                                <legend><strong>{$lang->as_usercp_users}</strong></legend>
+                                <table cellspacing="0" cellpadding="{$theme['tablespace']}">
+                                    <tr><td>{$lang->as_usercp_attached}</td></tr>
+                                    {$as_usercp_userbit}
+                                </table>
+                            </fieldset>
+                        </td>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp</title>
+        <tpl><![CDATA[<html>
+                        <head>
+                            <title>{$mybb->settings['bbname']} - {$lang->as_name}</title>
+                            {$headerinclude}
+                            <link rel="stylesheet" href="{$mybb->asset_url}/jscripts/select2/select2.css" />
+                            <script type="text/javascript" src="{$mybb->asset_url}/jscripts/select2/select2.min.js?ver={$mybb->version_code}"></script>
+                        </head>
+                        <body>
+                        {$header}
+                        <table width="100%" border="0" align="center">
+                            <tr>
+                            {$usercpnav}
+                                <td valign="top">
+                                    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                        <tr><td class="thead" colspan="2"><strong>{$lang->as_name}</strong></td></tr>
+                                        <tr>
+                                            <td class="trow1" valign="top" {$colspan}>
+                                                <fieldset class="trow2">
+                                                    <legend><strong>{$lang->as_usercp_options}</strong></legend>
+                                                    {$as_usercp_options}
+                                                </fieldset>
+                                            </td>
+                                            {$as_usercp_users}
+                                        </tr>
+                                        <tr>
+                                            <td class="trow2" valign="top" {$colspan}>
+                                                {$as_usercp_privacy}
+                                            </td>
+                                      </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        {$footer}
+                        </body>
+                        </html>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_unshare</title>
+        <tpl><![CDATA[<input type="hidden" name="action" value="as_unshare" />
+                        <table width="100%" border="0">
+                            <tr><td>{$lang->as_isshared}</td></tr>
+                            <tr><td>
+                                <input type="submit" value="{$lang->as_unshare}" name="{$lang->as_unshare}" class="button" />
+                            </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_attached_detach</title>
+        <tpl><![CDATA[<input type="hidden" name="action" value="as_detach" />
+                        <table width="100%" border="0">
+                            <tr><td>{$lang->as_isattached}</td></tr>
+                            <tr><td>
+                                <input type="submit" value="{$lang->as_detach}" name="{$lang->as_detach}" class="button" />
+                            </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_free_attach</title>
+        <tpl><![CDATA[<input type="hidden" name="action" value="as_attach" />
+                        <table width="100%" border="0">
+                            {$shareuser}
+                            <tr><td><input type="radio" name="select" value="attachuser" checked="checked" />&nbsp;{$lang->as_attachuser}<br /></td></tr>
+                            <tr><td><input type="radio" name="select" value="attachme" />&nbsp;{$lang->as_attachme}</td></tr>
+                            <tr><td><span id="as_username" class="smalltext">{$lang->as_username}</span></td></tr>
+                            <tr><td><input type="textbox" name="username" id="accountswitcherusername" style="width: 260px;" class="textbox" /></td></tr>
+                            <tr><td><span id="as_password" class="smalltext">{$lang->as_password}</span></td></tr>
+                            <tr><td><input type="password" name="password" size="30" /></td></tr>
+                            <tr><td>
+                                <input type="submit" value="{$lang->as_attach}" name="{$lang->as_attach}" class="button" />
+                            </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_shareuser</title>
+        <tpl><![CDATA[<tr><td><input type="radio" id="shareuser" name="select" value="shareuser" />&nbsp;{$lang->as_shareuser}<br /></td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_master_attach</title>
+        <tpl><![CDATA[<input type="hidden" name="action" value="as_attach" />
+                    <input type="hidden" name="select" value="attachuser" />
+                    <table width="100%" border="0">
+                        <tr><td>{$lang->as_attachuser}</td></tr>
+                        <tr><td><span class="smalltext">{$lang->as_username}</span></td></tr>
+                        <tr><td><input type="textbox" name="username" id="accountswitcherusername" style="width: 260px;" class="textbox" /></td></tr>
+                        <tr><td><span class="smalltext">{$lang->as_password}</span></td></tr>
+                        <tr><td><input type="password" name="password" size="30" /></td></tr>
+                        <tr><td>
+                            <input type="submit" value="{$lang->as_attach}" name="{$lang->as_attach}" class="button" />
+                        </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_registered_attach</title>
+        <tpl><![CDATA[<input type="hidden" name="action" value="as_attach" />
+                    <table width="100%" border="0">
+                        <tr><td><input type="hidden" name="select" value="attachme" /></td></tr>
+                        <tr><td><span id="as_username" class="smalltext">{$lang->as_attachme_registered}</span></td></tr>
+                        <tr>
+                            <td>
+                                <select name="username" style="min-width: 150px;">
+                                    {$selectoptions}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr><td><span id="as_password" class="smalltext">{$lang->as_password}</span></td></tr>
+                        <tr><td><input type="password" name="password" size="30" /></td></tr>
+                        <tr><td>
+                            <input type="submit" value="{$lang->as_attach}" name="{$lang->as_attach}" class="button" />
+                        </td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_away</title>
+        <tpl><![CDATA[</td>
+                </tr>
+                <tr>
+                    <td valign="top" width="1"><input type="checkbox" class="checkbox" style="{$checkbox}" name="awayall" id="awayall" value="1" {$away_all_check} /></td>
+                    <td><span class="smalltext"><label for="awayall">{$lang->aj_usercp_profile_away}</label></span>
+                    ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_header_userbit</title>
+        <tpl><![CDATA[{$userAvatar}&nbsp;<a id="switch_{$userUid}" href="#switch" class="switchlink" style="margin-right: 5px; background: none; padding-left: 0;"><span class="noscript" title="{$lang->aj_no_script}" onmouseover="style.textDecoration='underline';" onmouseout="style.textDecoration='none';">{$attachedUser}</span></a>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_header_dropdown_userbit</title>
+        <tpl><![CDATA[<li class="as_head_drop">{$userAvatar}&nbsp;<a id="menuswitch_{$userUid}" href="#switch" class="switchlink"><span class="noscript" title="{$lang->aj_no_script}" onmouseover="style.fontSize='1.2em';" onmouseout="style.fontSize='1em';">{$attachedUser}</span></a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_header</title>
+        <tpl><![CDATA[</li></ul><ul class="menu panel_links as_header"><li>{$ownAvatar}{$mybb->user['username']}</li><li class="as_head_userbit">{$as_header_userbit}]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_header_dropdown</title>
+        <tpl><![CDATA[&nbsp;<div id="accountswitcher_header"><a>{$lang->aj_profile}</a>
+                <div id="accountswitcher_header_popup">
+                    <ul class="trow1">
+                        {$as_header_dropdown}
+                    </ul>
+                </div>
+            </div>
+            <script>
+                <!--
+                    $("#accountswitcher_header").on("click", function(e) {
+                        $("#accountswitcher_header_popup").show();
+                        e.stopPropagation();
+                    });
+                    $("#accountswitcher_header_popup").on("click", function(e) {
+                        e.stopPropagation();
+                    });
+                    $(document).on("click", function() {
+                        $("#accountswitcher_header_popup").hide();
+                    });
+                -->
+            </script>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_header_accountlist</title>
+        <tpl><![CDATA[<li><a href="{$mybb->settings['bburl']}/accountlist.php">{$lang->aj_accountlist}</a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_newpm_messagebit</title>
+        <tpl><![CDATA[<a id="switch_{$userUid}" href="#switch" class="switchlink">{$attachedUser}</a>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_newpm_message</title>
+        <tpl><![CDATA[<div class="pm_alert" id="pm_switch_notice">
+                            <div>{$privatemessage_switch}</div>
+                        </div>
+                        <br />]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_post_userbit</title>
+        <tpl><![CDATA[<option value="{$userUid}">{$attachedPostUser}</option>
+            ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_post</title>
+        <tpl><![CDATA[<span id="as_reload" title="Reload Page" style="display:none; cursor:pointer;">&#8635;</span>&nbsp;
+                    <select id="postswitch" title="{$lang->aj_no_script}" style="min-width: 90px;">
+                        <option value="{$mybbUid}" selected="selected">{$mybbUsername}</option>
+                        {$as_post_userbit}
+                    </select>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_footer</title>
+        <tpl><![CDATA[<script type="text/javascript">
+        // <!--
+            reply_button = "{$as_postreply}";
+            as_desc_button = "{$lang->aj_submit_button}";
+            account_id = parseInt({$mybbUid});
+            account_name = "{$mybbUsername}";
+            can_switch = parseInt({$as_canswitch});
+            dropdown_reload = {$as_reload};
+            user_post_key = "{$mybb->post_code}";
+            switch_success_text = "{$lang->aj_switch_success}";
+            AS_SCRIPT = "{$as_script}";
+        // -->
+        </script>
+        <script src="{$mybb->asset_url}/jscripts/accountswitcher/as_script.min.js?v={$eas->version}" type="text/javascript"></script>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profile_switch</title>
+        <tpl><![CDATA[<li style="list-style-type: none;"><a id="profile_switch_{$userUid}" href="#switch" class="switchlink">{$userAvatar}&nbsp;{$attachedUser}</a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profile_link</title>
+        <tpl><![CDATA[<li id="profile_link_{$userUid}">{$userAvatar}&nbsp;{$attachedUser}</li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profile</title>
+        <tpl><![CDATA[<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                        <tr>
+                            <td class="thead"><strong>{$lang->aj_profile}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="trow1">
+                            <ul>
+                            {$as_profile_userbit}
+                            {$as_profile_hidden}
+                            </ul>
+                            </td>
+                        </tr>
+                    </table>
+                    <br />]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_postbit_switch</title>
+        <tpl><![CDATA[<li style="list-style-type: none; white-space: nowrap;"><span style="font-size: 16px;">&#128101;</span>&nbsp;<a id="pb_{$postId}_switch_{$userUid}" href="#pid{$postId}" class="switchpb" title="Switch">{$attachedUser}</a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_postbit_link</title>
+        <tpl><![CDATA[<li style="list-style-type: none; white-space: nowrap;"><span style="font-size: 16px;">&#128101;</span>&nbsp;{$attachedUser}</li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_postbit</title>
+        <tpl><![CDATA[<br />
+                <a id="aj_postuser_{$post['pid']}" href="javascript:void(0);">{$numaccounts}{$lang->aj_memberlist}</a>
+                <br />
+                <div id="aj_postbit_{$post['pid']}" style="display:none; position:absolute; cursor:pointer; z-index:100;">
+                    <div class="thead" style="font-size:1em;"><strong>{$lang->aj_memberlist}</strong></div>
+                    <div class="trow1">
+                        <ul style="padding-left:20px;">
+                            {$as_postuser_userbit}
+                            {$as_postuser_hidden}
+                        </ul>
+                    </div>
+                </div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_button_admin</title>
+        <tpl><![CDATA[<div class="popup_item_container"><a class="popup_item" style="padding-left: 10px;" href="javascript:MyBB.popupWindow('/editpost.php?pid={$post['pid']}&amp;adminauthor=1&amp;modal=1')">{$lang->aj_admin_changeauthor_postbit}</a></div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_button_attached</title>
+        <tpl><![CDATA[<div class="popup_item_container"><a class="popup_item" style="padding-left: 10px;" href="javascript:MyBB.popupWindow('/editpost.php?pid={$post['pid']}&amp;changeauthor=1&amp;modal=1')">{$lang->aj_changeauthor_postbit}</a></div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_button</title>
+        <tpl><![CDATA[<span id="changeauthor_{$post['pid']}" style="font-size: 1.5em;cursor:pointer;" title="{$lang->aj_changeauthor_postbit}">&#9660;</span>
+        <div id="changeauthor_{$post['pid']}_popup" class="popup_menu" style="display: none; color: #000000; width: 180px;">
+            {$author_change}
+            {$admin_change}
+        </div>
+        <script type="text/javascript">
+            // <!--
+            if(use_xmlhttprequest == 1)
+            {
+                $("#changeauthor_{$post['pid']}").popupMenu();
+            }
+            // -->
+        </script>
+        ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_selfbit</title>
+        <tpl><![CDATA[<option value="{$userUid}" selected="selected">{$attachedUser}</option>
+                    ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_userbit</title>
+        <tpl><![CDATA[<option value="{$userUid}">{$attachedUser}</option>
+                    ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_admin</title>
+        <tpl><![CDATA[<div style="overflow-y: auto; max-height: 400px;">
+                <link rel="stylesheet" href="{$mybb->asset_url}/jscripts/select2/select2.css" />
+                <script type="text/javascript" src="{$mybb->asset_url}/jscripts/select2/select2.min.js?ver={$mybb->version_code}"></script>
+                <form action="editpost.php?pid={$pid}" method="post">
+                    <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                        <tr><td align="center">
+                            <table width="200px" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="thead" align="center">
+                                        <strong>{$lang->aj_changeauthor_headline2}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="200px" height="300px" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="trow1" style="vertical-align:top;" align="center">
+                                        <div class="float_left" style="width: 120px; text-align: right;"><strong>{$lang->as_username}</strong></div>
+                                        <div style="margin-left: 30px;"><input type="hidden" name="authorswitchadmin" id="authorswitchadmin" style="width: 80%;" class="textbox" /></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="200px" style="margin-bottom: 30px;" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="trow2" align="center">
+                                        <input type="hidden" name="action" value="do_cancel" />
+                                        <input type="submit" class="button" name="submit" value="{$lang->aj_changeauthor_cancel}" onclick="{$cancel}" />
+                                    </td>
+                                    <td class="trow2" align="center">
+                                        <input type="hidden" name="action" value="do_author" />
+                                        <input type="hidden" name="p_link" value="{$postlink}" />
+                                        <input type="submit" class="button" name="submit" value="{$lang->aj_changeauthor_submit}" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td></tr>
+                    </table>
+                </form>
+                <script type="text/javascript">
+                <!--
+                    lang.select2_match= "{$lang->select2_match}";
+                    lang.select2_matches= "{$lang->select2_matches}";
+                    lang.select2_nomatches= "{$lang->select2_nomatches}";
+                    lang.select2_inputtooshort_single = "{$lang->select2_inputtooshort_single}";
+                    lang.select2_inputtooshort_plural = "{$lang->select2_inputtooshort_plural}";
+                    lang.select2_inputtoolong_single = "{$lang->select2_inputtoolong_single}";
+                    lang.select2_inputtoolong_plural = "{$lang->select2_inputtoolong_plural}";
+                    lang.select2_selectiontoobig_single = "{$lang->select2_selectiontoobig_single}";
+                    lang.select2_selectiontoobig_plural = "{$lang->select2_selectiontoobig_plural}";
+                    lang.select2_loadmore = "{$lang->select2_loadmore}";
+                    lang.select2_searching = "{$lang->select2_searching}";
+
+                    MyBB.select2();
+                    $("#authorswitchadmin").select2({
+                        placeholder: "{$lang->aj_changeauthor_headline2}",
+                        minimumInputLength: 2,
+                        multiple: false,
+                        allowClear: true,
+                        ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                            url: "xmlhttp.php?action=get_users",
+                            dataType: "json",
+                            data: function (term, page) {
+                                return {
+                                    query: term, // search term
+                                };
+                            },
+                            results: function (data, page) { // parse the results into the format expected by Select2.
+                                // since we are using custom formatting functions we do not need to alter remote JSON data
+                                return {results: data};
+                            }
+                        },
+                        initSelection: function(element, callback) {
+                            var query = $(element).val();
+                            if (query !== "") {
+                                $.ajax("xmlhttp.php?action=get_users", {
+                                    data: {
+                                        query: query
+                                    },
+                                    dataType: "json"
+                                }).done(function(data) { callback(data); });
+                            }
+                        },
+                       // Allow the user entered text to be selected as well
+                       createSearchChoice:function(term, data) {
+                            if ( $(data).filter( function() {
+                                return this.text.localeCompare(term)===0;
+                            }).length===0) {
+                                return {id:term, text:term};
+                            }
+                        },
+                    });
+                // -->
+                </script>
+                </div>
+                ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_author_change</title>
+        <tpl><![CDATA[<div style="overflow-y: auto; max-height: 400px;">
+                <form action="editpost.php?pid={$pid}" method="post">
+                    <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                        <tr><td align="center">
+                            <table width="200px" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="thead" align="center">
+                                        <strong>{$lang->aj_changeauthor_headline2}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="200px" height="300px" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="trow1" style="vertical-align:top;" align="center">
+                                    <select name="authorswitch" style="min-width: 150px;">
+                                        {$as_author_userbit}
+                                    </select>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="200px" style="margin-bottom: 30px;" border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+                                <tr>
+                                    <td class="trow2" align="center">
+                                        <input type="hidden" name="action" value="do_cancel" />
+                                        <input type="submit" class="button" name="submit" value="{$lang->aj_changeauthor_cancel}" onclick="{$cancel}" />
+                                    </td>
+                                    <td class="trow2" align="center">
+                                        <input type="hidden" name="action" value="do_author" />
+                                        <input type="hidden" name="p_link" value="{$postlink}" />
+                                        <input type="submit" class="button" name="submit" value="{$lang->aj_changeauthor_submit}" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td></tr>
+                    </table>
+                </form>
+            </div>
+            ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_memberlist_switch</title>
+        <tpl><![CDATA[<li style="list-style-type: none; white-space: nowrap;"><span style="font-size: 16px;">&#128101;</span>&nbsp;<a id="ml_switch_{$userUid}" href="#" class="switchml" title="Switch">{$attachedUser}</a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_memberlist_link</title>
+        <tpl><![CDATA[<li style="list-style-type: none; white-space: nowrap;"><span style="font-size: 16px;">&#128101;</span>&nbsp;{$attachedUser}</li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_memberlist_shared</title>
+        <tpl><![CDATA[<div style="float: right; margin-right: 100px; min-width: 200px;">({$lang->aj_memberlist_shared})</div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_memberlist</title>
+        <tpl><![CDATA[<div style="float: right; margin-right: 100px; width: 200px;">
+                <a id="aj_user_{$user['uid']}" href="javascript:void(0);">{$numaccounts}{$lang->aj_memberlist}</a>
+                <br />
+                <div id="aj_memberbit_{$user['uid']}" style="display:none; position:relative; cursor:pointer; z-index:100;">
+                    <div class="thead" style="font-size:1em;"><strong>{$lang->aj_memberlist}</strong></div>
+                    <div class="trow1">
+                        <ul style="padding-left:20px;">
+                            {$as_user_userbit}
+                            {$as_user_hidden}
+                        </ul>
+                    </div>
+                </div>
+                </div>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_sidebar_userbit</title>
+        <tpl><![CDATA[<li class="as_side_user">{$userAvatar}&nbsp;<a id="sideswitch_{$userUid}" href="#switch" class="switchlink"><span class="noscript" title="{$lang->aj_no_script}" onmouseover="style.fontSize='1.3em';" onmouseout="style.fontSize='1.2em';">{$attachedUser}</span></a></li>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_sidebar</title>
+        <tpl><![CDATA[<div id="asSidenav" class="as_sidenav trow1">
+    <div class="tcat" style="width: 250px; height: 36px; font-size: 20px;">{$lang->aj_profile}</div>
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <ul>
+            {$as_sidebar_userbit}
+        </ul>
+    </div>
+    <div class="as_menu-arrow" style="font-size:30px;cursor:pointer;" onclick="openNav()">☰</div>
+</div>
+<script>
+function openNav() {
+    document.getElementById("asSidenav").style.width = "280px";
+}
+
+function closeNav() {
+    document.getElementById("asSidenav").style.width = "0";
+}
+</script>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_sec_account</title>
+        <tpl><![CDATA[<form method="post" action="usercp.php">
+                <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                <table border="0" style="margin-top: 50px; padding: 5px;" width="430px;">
+                    <tr>
+                        <td valign="top" width="1"><input type="checkbox" class="checkbox" style="{$checkbox}" name="secacc" id="secacc" value="1" {$sec_check} /></td>
+                        <td class="trow1"><div><span class="smalltext"><label for="secacc">{$lang->as_usercp_secaccount_desc}</label></span></div>
+                          <div style="padding-top: 10px;"><span class="smalltext"><label for="secacc_reason">{$lang->as_usercp_secaccount_reason}</label></span>
+                            <input type="text" name="secacc_reason" id="secacc_reason" value="{$user_sec_reason}" size="30" />
+                            <input type="hidden" name="action" value="do_secaccount" /></div></td>
+                            <td class="trow1"><input type="submit" value="{$lang->as_usercp_secaccount}" name="{$lang->as_usercp_secaccount}" class="button float_right" /></td>
+                    </tr>
+                </table>
+                </form>
+                ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_sec_accountsbit</title>
+        <tpl><![CDATA[<span style="font-style: italic; color: #0000ff;" title="{$user_sec_reason}">{$attachedPostUser}</span>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_shared_accountsbit</title>
+        <tpl><![CDATA[<span style="font-style: italic; color: #ff0000;">{$attachedPostUser}</span>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profilefield</title>
+        <tpl><![CDATA[<td class="trow2" width="22%" style="padding-left: 20px;">{$profilefield}</td>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profilefield_attached</title>
+        <tpl><![CDATA[<td class="trow2" width="44%" style="padding-left: 20px;">{$profilefield}</td></tr>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_profilefield_head</title>
+        <tpl><![CDATA[<td class="trow2" width="22%" style="padding-left: 20px;"><strong>{$profile_name}</strong></td>]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_avatar</title>
+        <tpl><![CDATA[<img src="{$userAvatar}" alt="Avatar" title="{$attachedPostUser}" />]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_privacy</title>
+        <tpl><![CDATA[<fieldset class="trow2">
+            <legend><strong>{$lang->as_usercp_privacy}</strong></legend>
+            <form method="post" action="usercp.php">
+                            <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                            <table border="0" style="margin-top: 10px; padding: 5px;" width="430px;">
+                                <tr>
+                                    <td valign="top" width="1">
+                                        <input type="checkbox" class="checkbox" style="{$checkbox}" name="as_privacy" id="as_privacy" value="1" {$privacy_check} />
+                                    </td>
+                                    <td class="trow1">
+                                        <span class="smalltext" style="margin-right: 20px; vertical-align:top;"><label for="as_privacy">{$lang->as_usercp_privacy_desc}</label></span>
+                                        <input type="hidden" name="action" value="do_as_privacy" />
+                                        <input type="submit" value="{$lang->as_usercp_secaccount}" name="{$lang->as_usercp_secaccount}" class="button float_right" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+            </fieldset>
+            {$as_usercp_privacy_master}
+        ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_privacy_master</title>
+        <tpl><![CDATA[</td>
+            <td class="trow1">
+            <fieldset class="trow2">
+            <legend><strong>{$lang->as_usercp_privacy} - {$lang->aj_memberlist_more}</strong></legend>
+            <form method="post" action="usercp.php">
+                            <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                            <table border="0" style="margin-top: 20px; padding: 5px;">
+                                <tr>
+                                    <td class="trow1" width="400px;">
+                                        <span class="smalltext" style="margin-right: 20px;"><label for="do_as_privacy_master">{$lang->as_usercp_priv_hideall}</label></span>
+                                        <input type="hidden" name="action" value="do_as_privacy_master" />
+                                        <input type="submit" value="{$lang->as_usercp_secaccount}" id="do_as_privacy_master" name="{$lang->as_usercp_secaccount}" class="button float_right" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                        <form method="post" action="usercp.php">
+                            <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                            <table border="0" style="margin-top: 20px; padding: 5px;">
+                                <tr>
+                                    <td class="trow1" width="400px;">
+                                        <span class="smalltext" style="margin-right: 20px;"><label for="undo_as_privacy_master">{$lang->as_usercp_priv_showall}</label></span>
+                                        <input type="hidden" name="action" value="undo_as_privacy_master" />
+                                        <input type="submit" value="{$lang->as_usercp_secaccount}" id="undo_as_privacy_master" name="{$lang->as_usercp_secaccount}" class="button float_right" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+            </fieldset>
+        ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_usercp_buddyshare</title>
+        <tpl><![CDATA[<form method="post" action="usercp.php">
+                <input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+                <table border="0" style="margin-top: 50px; padding: 5px;" width="430px;">
+                    <tr>
+                        <td valign="top" width="1"><input type="checkbox" class="checkbox" style="{$checkbox}" name="buddyshare" id="buddyshare" value="1" {$buddy_check} /></td>
+                        <td class="trow1"><span class="smalltext"><label for="buddyshare">{$lang->as_usercp_buddyshare_desc}</label></span>
+                            <input type="hidden" name="action" value="do_buddyshare" />
+                            <input type="submit" value="{$lang->as_usercp_secaccount}" name="{$lang->as_usercp_secaccount}" class="button float_right" /></td>
+                    </tr>
+                </table>
+                </form>
+        ]]></tpl>
+    </template>
+    <template>
+        <title>accountswitcher_attached_postcount</title>
+        <tpl><![CDATA[<span class="attached_postcount">{$lang->aj_attached_post_count}{$as_postcount}</span>]]></tpl>
+    </template>
+</accountswitcher>
