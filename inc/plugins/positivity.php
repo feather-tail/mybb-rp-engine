@@ -17,8 +17,7 @@ $plugins->add_hook('class_moderation_delete_thread', 'positivity_moderation_dele
 $plugins->add_hook('postbit', 'positivity_postbit');
 $plugins->add_hook('member_profile_end', 'positivity_member_profile_end');
 $plugins->add_hook('memberlist_user', 'positivity_memberlist_user');
-
-$plugins->add_hook('output_page', 'positivity_output_page');
+$plugins->add_hook('usercp_end', 'positivity_usercp_end');
 
 function positivity_info()
 {
@@ -822,11 +821,11 @@ function positivity_postbit(&$post)
 		return;
 	}
 
-	if(empty($post['reputation'])) {
+	if(empty($post['replink'])) {
 		return;
 	}
 
-	if(strpos($post['reputation'], 'positivity.php?uid=') !== false) {
+	if(strpos($post['replink'], 'positivity.php?uid=') !== false) {
 		return;
 	}
 
@@ -836,7 +835,7 @@ function positivity_postbit(&$post)
 		return;
 	}
 
-	$post['reputation'] .= $block;
+	$post['replink'] .= $block;
 }
 
 function positivity_member_profile_end()
@@ -900,15 +899,11 @@ function positivity_memberlist_user(&$user)
 	}
 }
 
-function positivity_output_page(&$page)
+function positivity_usercp_end()
 {
-	global $mybb;
+	global $mybb, $reputation;
 
 	if(!positivity_should_run()) {
-		return;
-	}
-
-	if(!defined('THIS_SCRIPT') || THIS_SCRIPT !== 'usercp.php') {
 		return;
 	}
 
@@ -921,7 +916,11 @@ function positivity_output_page(&$page)
 		return;
 	}
 
-	if(strpos($page, 'positivity.php?uid=') !== false) {
+	if(!isset($reputation)) {
+		$reputation = '';
+	}
+
+	if(strpos($reputation, 'positivity.php?uid=') !== false) {
 		return;
 	}
 
@@ -931,11 +930,7 @@ function positivity_output_page(&$page)
 		return;
 	}
 
-	$marker = '<!-- end: usercp_reputation -->';
-	if(strpos($page, $marker) !== false)
-	{
-		$page = str_replace($marker, $block.$marker, $page);
-	}
+	$reputation .= $block;
 }
 
 function positivity_recount_all(): void
