@@ -12,6 +12,7 @@ $l['symposium_conversations_empty'] = "You don't have any conversation yet. Star
 
 // Conversations list and in-depth
 $l['symposium_conversation'] = "Conversation";
+$l['symposium_conversation_with'] = "Conversation with";
 $l['symposium_conversation_title'] = "Conversation title or user";
 $l['symposium_conversation_last_message'] = "Last message";
 $l['symposium_conversation_delete'] = "Delete conversation(s)";
@@ -37,6 +38,7 @@ $l['symposium_new_conversation_title'] = 'Conversation title';
 // Errors/success messages
 $l['symposium_error_conversation_doesnt_exist'] = "This conversation does not exist.";
 $l['symposium_error_no_conversation_to_delete'] = "You did not select any conversation to delete.";
+$l['symposium_error_no_message_to_delete'] = "You did not select any message to delete.";
 $l['symposium_success_conversations_deleted'] = "The selected conversation(s) have been deleted successfully.";
 $l['pmdata_symposium_tampered_data'] = "There was a mismatch between the existing conversation ID and the conversation participants. Please do not attempt to tamper the form data. Try again.";
 $l['pmdata_symposium_group_conversations_disabled'] = "Group conversations are not allowed. Please enter a single recipient to send your messages to.";
@@ -54,3 +56,7 @@ $l['symposium_pm_notice_message'] = "message";
 $l['symposium_pm_notice_messages'] = "messages";
 $l['symposium_pm_notice_conversation'] = "conversation";
 $l['symposium_pm_notice_conversations'] = "conversations";
+
+// User control panel preferences
+$l['symposium_usercp_enable'] = "Enable Symposium conversations";
+$l['symposium_usercp_enable_desc'] = "If enabled, your private messages are shown in Symposium conversation mode.";
