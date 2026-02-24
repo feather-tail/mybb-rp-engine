@@ -276,8 +276,13 @@ function symposium_uninstall()
 	unset($shadePlugins[$info['name']]);
 	$cache->update('shade_plugins', $shadePlugins);
 
-	$db->drop_table('symposium_conversations');
-	$db->drop_table('symposium_conversations_metadata');
+	if ($db->table_exists('symposium_conversations')) {
+		$db->drop_table('symposium_conversations');
+	}
+
+	if ($db->table_exists('symposium_conversations_metadata')) {
+		$db->drop_table('symposium_conversations_metadata');
+	}
 
 	if ($db->field_exists('convid', 'privatemessages')) {
 		$db->drop_column('privatemessages', 'convid');
