@@ -1852,15 +1852,151 @@ function symposium_admin_user_users_delete_commit()
 	");
 }
 
+function symposium_ajax_render_messages(string $convid, array $rawMessages, int $lastPmid = 0): array
+{
+	global $db, $mybb, $templates;
+
+	require_once MYBB_ROOT . 'inc/class_parser.php';
+	$parser = new postParser;
+
+	$parserOptions = [
+		'allow_html' => $mybb->settings['pmsallowhtml'],
+		'allow_mycode' => $mybb->settings['pmsallowmycode'],
+		'allow_smilies' => $mybb->settings['pmsallowsmilies'],
+		'allow_imgcode' => $mybb->settings['pmsallowimgcode'],
+		'allow_videocode' => $mybb->settings['pmsallowvideocode'],
+		'me_username' => $mybb->user['username'],
+		'filter_badwords' => 1
+	];
+
+	$escConvid = $db->escape_string($convid);
+
+	$query = $db->simple_select('symposium_conversations_metadata', '*', 'convid = "' . $escConvid . '"', ['limit' => 1]);
+	$metadata = (array)$db->fetch_array($query);
+
+	$users = [];
+	$conversationParticipants = [];
+
+	if (!empty($metadata['participants'])) {
+		$conversationParticipants = array_values(array_unique(array_filter(array_map('intval', explode(',', (string)$metadata['participants'])))));
+
+		if ($conversationParticipants) {
+			$query = $db->simple_select('users', 'uid, username, usergroup, displaygroup, avatar', 'uid IN (' . implode(',', $conversationParticipants) . ')');
+			while ($u = $db->fetch_array($query)) {
+				$u['avatar'] = !empty($u['avatar']) ? (string)$u['avatar'] : 'images/default_avatar.png';
+				$users[(int)$u['uid']] = $u;
+			}
+		}
+	}
+
+	if (in_array(0, $conversationParticipants, true)) {
+		$users[0] = [
+			'uid' => 0,
+			'username' => 'MyBB Engine',
+			'usergroup' => 2,
+			'displaygroup' => 2,
+			'avatar' => 'images/default_avatar.png'
+		];
+	}
+
+	$groupConversation = ($users && count($users) > 2);
+
+	$previousMidnight = 0;
+	$lastUid = 0;
+
+	$lastPmid = (int)$lastPmid;
+	if ($lastPmid > 0) {
+		$q = $db->simple_select('privatemessages', 'dateline, fromid', 'pmid = ' . $lastPmid . ' AND convid = "' . $escConvid . '"', ['limit' => 1]);
+		$prev = $db->fetch_array($q);
+		if ($prev) {
+			$previousMidnight = strtotime('0:00', (int)$prev['dateline'] + 60 * 60 * 24);
+			$lastUid = (int)$prev['fromid'];
+		}
+	}
+
+	$messages = '';
+
+	foreach ($rawMessages as $message) {
+
+		$date = my_date($mybb->settings['dateformat'], (int)$message['dateline']);
+		$divider = '';
+		$lastRead = '';
+
+		if ((int)$message['dateline'] > (int)$previousMidnight) {
+			eval("\$divider = \"" . $templates->get('symposium_conversation_date_divider') . "\";");
+		}
+
+		$message['message'] = $parser->parse_message((string)$message['message'], $parserOptions);
+		$time = my_date($mybb->settings['timeformat'], (int)$message['dateline']);
+
+		$mode = ((int)$message['folder'] === 1) ? 'external' : 'personal';
+		if ($groupConversation && (int)$message['folder'] === 1) {
+			$mode = 'external_group';
+		}
+
+		if ($groupConversation) {
+
+			$sender = '';
+			$avatar = '';
+			$u = $users[(int)$message['fromid']] ?? null;
+
+			if ($u && (!$lastUid || $lastUid !== (int)$u['uid'] || $divider)) {
+
+				eval("\$avatar = \"" . $templates->get('symposium_conversation_message_external_group_avatar') . "\";");
+
+				$sender = format_name($u['username'], $u['usergroup'], $u['displaygroup']);
+				$sender = build_profile_link($sender, (int)$u['uid']);
+			}
+
+			$lastUid = $u ? (int)$u['uid'] : 0;
+		}
+
+		if ($mode === 'personal') {
+
+			$read = ((int)$message['readtime'] > 0);
+
+			if ($groupConversation) {
+				$readers = array_values(array_unique(array_filter(array_map('intval', explode(',', (string)$message['lastread'])))));
+				$remaining = array_diff($conversationParticipants, $readers);
+				$remaining = array_diff($remaining, [(int)$message['fromid']]);
+				$read = (count($remaining) === 0);
+			}
+
+			if ($read) {
+				eval("\$lastRead = \"" . $templates->get('symposium_seen_icon') . "\";");
+			} else {
+				eval("\$lastRead = \"" . $templates->get('symposium_unseen_icon') . "\";");
+			}
+		}
+
+		eval("\$messages .= \"" . $templates->get("symposium_conversation_message_{$mode}") . "\";");
+
+		$previousMidnight = strtotime('0:00', (int)$message['dateline'] + 60 * 60 * 24);
+	}
+
+	return [
+		'html' => $messages,
+		'groupConversation' => $groupConversation,
+		'participants' => $conversationParticipants
+	];
+}
+
 function symposium_xmlhttp()
 {
-	global $db, $mybb, $lang, $charset;
+	global $db, $mybb, $lang, $charset, $session;
 
 	if (!symposium_pm_ui_enabled()) {
 		return;
 	}
 
-	if ($mybb->request_method !== 'post' || ($mybb->input['action'] ?? '') !== 'symposium_delete_pms' || empty($mybb->input['pmids'])) {
+	$action = (string)($mybb->input['action'] ?? '');
+	$allowed = ['symposium_delete_pms', 'symposium_send_message', 'symposium_fetch_messages'];
+
+	if (!in_array($action, $allowed, true)) {
+		return;
+	}
+
+	if ($mybb->request_method !== 'post') {
 		return;
 	}
 
@@ -1874,57 +2010,230 @@ function symposium_xmlhttp()
 		xmlhttp_error($lang->invalid_post_code);
 	}
 
-	$pmids = array_values(array_unique(array_filter(array_map('intval', (array)$mybb->input['pmids']))));
-	if (!$pmids) {
-		echo json_encode(['errors' => [$lang->symposium_generic_error_deleting_messages]]);
-		exit;
-	}
-
-	$search = implode(',', $pmids);
 	$convid = $db->escape_string((string)($mybb->input['convid'] ?? ''));
 
-	$deletepms = [];
-	$query = $db->simple_select('privatemessages', 'pmid', "pmid IN ({$search}) AND uid='" . (int)$mybb->user['uid'] . "' AND convid = '{$convid}'", ['order_by' => 'pmid']);
-	while ($delpm = $db->fetch_array($query)) {
-		$deletepms[(int)$delpm['pmid']] = (int)$delpm['pmid'];
-	}
+	$query = $db->simple_select(
+		'symposium_conversations',
+		'convid',
+		'convid = "' . $convid . '" AND uid = ' . (int)$mybb->user['uid'],
+		['limit' => 1]
+	);
 
-	if (!$deletepms) {
-		echo json_encode(['errors' => [$lang->symposium_generic_error_deleting_messages]]);
+	if (!$convid || !$db->fetch_field($query, 'convid')) {
+		echo json_encode(['errors' => [$lang->symposium_error_conversation_doesnt_exist]]);
 		exit;
 	}
 
-	$toDelete = implode(',', $deletepms);
+	if ($action === 'symposium_delete_pms') {
 
-	if (!empty($mybb->settings['symposium_move_to_trash'])) {
-		$db->update_query('privatemessages', ['folder' => 4, 'deletetime' => TIME_NOW], "pmid IN ({$toDelete}) AND uid='" . (int)$mybb->user['uid'] . "' AND convid = '{$convid}'");
-	} else {
-		$db->delete_query('privatemessages', "pmid IN ({$toDelete}) AND uid='" . (int)$mybb->user['uid'] . "' AND convid = '{$convid}'");
+		$messagesToDelete = (array)($mybb->input['pmids'] ?? []);
+
+		if (!$messagesToDelete) {
+			echo json_encode(['errors' => [$lang->symposium_error_no_message_to_delete]]);
+			exit;
+		}
+
+		$messagesToDelete = array_unique(array_filter(array_map('intval', $messagesToDelete)));
+		if (!$messagesToDelete) {
+			echo json_encode(['errors' => [$lang->symposium_error_no_message_to_delete]]);
+			exit;
+		}
+
+		$query = $db->simple_select(
+			'privatemessages',
+			'pmid',
+			'pmid IN (' . implode(',', $messagesToDelete) . ') AND convid = "' . $convid . '" AND uid=' . (int)$mybb->user['uid']
+		);
+
+		$pmids = [];
+		while ($pmid = (int)$db->fetch_field($query, 'pmid')) {
+			$pmids[] = $pmid;
+		}
+
+		if (!$pmids) {
+			echo json_encode(['errors' => [$lang->symposium_generic_error_deleting_messages]]);
+			exit;
+		}
+
+		if (!empty($mybb->settings['symposium_move_to_trash'])) {
+			$db->update_query(
+				'privatemessages',
+				['folder' => 3, 'deletetime' => TIME_NOW],
+				'pmid IN (' . implode(',', array_map('intval', $pmids)) . ') AND uid=' . (int)$mybb->user['uid']
+			);
+		} else {
+			$db->delete_query(
+				'privatemessages',
+				'pmid IN (' . implode(',', array_map('intval', $pmids)) . ') AND uid=' . (int)$mybb->user['uid']
+			);
+		}
+
+		update_conversations_meta((int)$mybb->user['uid'], [$convid]);
+		update_conversations_counters((int)$mybb->user['uid']);
+
+		echo json_encode(['success' => 1]);
+		exit;
 	}
 
-	require_once MYBB_ROOT . 'inc/functions_user.php';
+	if ($action === 'symposium_send_message') {
 
-	if (function_exists('update_pm_count')) {
-		try {
-			$rf = new ReflectionFunction('update_pm_count');
-			if ($rf->getNumberOfParameters() >= 1) {
-				update_pm_count((int)$mybb->user['uid']);
-			} else {
+		if ((int)$mybb->usergroup['cansendpms'] === 0) {
+			echo json_encode(['errors' => [$lang->error_nopermission]]);
+			exit;
+		}
+
+		$timeCutoff = TIME_NOW - (5 * 60);
+		$query = $db->simple_select(
+			'privatemessages',
+			'pmid',
+			'convid = "' . $convid . '" AND dateline > ' . $timeCutoff . ' AND fromid=' . (int)$mybb->user['uid'] .
+			' AND subject="' . $db->escape_string((string)$mybb->get_input('subject')) . '"' .
+			' AND message="' . $db->escape_string((string)$mybb->get_input('message')) . '"' .
+			' AND folder!="3"',
+			['limit' => 1]
+		);
+
+		if ((int)$db->fetch_field($query, 'pmid') > 0) {
+			echo json_encode(['errors' => [$lang->error_pm_already_submitted]]);
+			exit;
+		}
+
+		require_once MYBB_ROOT . 'inc/datahandlers/pm.php';
+		$pmhandler = new PMDataHandler();
+
+		$pm = [
+			'subject' => $mybb->get_input('subject'),
+			'message' => $mybb->get_input('message'),
+			'fromid' => (int)$mybb->user['uid'],
+			'do' => $mybb->get_input('do'),
+			'pmid' => (int)$mybb->get_input('pmid', MyBB::INPUT_INT),
+			'ipaddress' => $session->packedip,
+			'convid' => $convid
+		];
+
+		$pm['to'] = array_unique(array_map('trim', explode(',', (string)$mybb->get_input('to'))));
+
+		$pm['options'] = [];
+		$pm['options']['signature'] = 0;
+		$pm['options']['savecopy'] = 1;
+		$pm['options']['disablesmilies'] = 0;
+		$pm['options']['readreceipt'] = 0;
+		$pm['saveasdraft'] = 0;
+
+		$pmhandler->set_data($pm);
+
+		if (!$pmhandler->validate_pm()) {
+			echo json_encode(['errors' => $pmhandler->get_friendly_errors()]);
+			exit;
+		}
+
+		$pmhandler->insert_pm();
+
+		$query = $db->simple_select(
+			'privatemessages',
+			'*',
+			'convid = "' . $convid . '" AND uid=' . (int)$mybb->user['uid'] . ' AND folder=2 AND fromid=' . (int)$mybb->user['uid'],
+			['order_by' => 'pmid DESC', 'limit' => 1]
+		);
+
+		$newMessage = $db->fetch_array($query);
+		if (!$newMessage) {
+			echo json_encode(['errors' => [$lang->symposium_generic_error_deleting_messages]]);
+			exit;
+		}
+
+		$render = symposium_ajax_render_messages($convid, [$newMessage], (int)$mybb->get_input('last_pmid', MyBB::INPUT_INT));
+
+		echo json_encode([
+			'success' => 1,
+			'pmid' => (int)$newMessage['pmid'],
+			'html' => (string)$render['html']
+		]);
+		exit;
+	}
+
+	if ($action === 'symposium_fetch_messages') {
+
+		$lastPmid = (int)$mybb->get_input('last_pmid', MyBB::INPUT_INT);
+		$limit = (int)$mybb->get_input('limit', MyBB::INPUT_INT);
+		if ($limit <= 0 || $limit > 50) {
+			$limit = 50;
+		}
+
+		$rawMessages = [];
+		$query = $db->simple_select(
+			'privatemessages',
+			'*',
+			'pmid > ' . $lastPmid . ' AND ((folder = 2 AND fromid = ' . (int)$mybb->user['uid'] . ') OR (folder = 1 AND uid = ' . (int)$mybb->user['uid'] . ')) AND convid = "' . $convid . '"',
+			['order_by' => 'pmid ASC', 'limit' => $limit]
+		);
+
+		while ($m = $db->fetch_array($query)) {
+			$rawMessages[] = $m;
+		}
+
+		if (!$rawMessages) {
+			echo json_encode(['success' => 1, 'html' => '']);
+			exit;
+		}
+
+		$render = symposium_ajax_render_messages($convid, $rawMessages, $lastPmid);
+
+		$incomingPmids = [];
+		$datelines = [];
+
+		foreach ($rawMessages as $m) {
+			$datelines[] = (int)$m['dateline'];
+			if ((int)$m['folder'] === 1 && (int)$m['status'] === 0 && (int)$m['uid'] === (int)$mybb->user['uid']) {
+				$incomingPmids[] = (int)$m['pmid'];
+			}
+		}
+
+		$datelines = array_values(array_unique(array_filter($datelines)));
+		$incomingPmids = array_values(array_unique(array_filter($incomingPmids)));
+
+		if ($incomingPmids) {
+			$db->update_query(
+				'privatemessages',
+				['status' => 1, 'readtime' => TIME_NOW],
+				'pmid IN (' . implode(',', array_map('intval', $incomingPmids)) . ') AND uid=' . (int)$mybb->user['uid']
+			);
+		}
+
+		if (!empty($render['groupConversation']) && $datelines) {
+			$uid = (int)$mybb->user['uid'];
+			$expr = "IF(IFNULL(lastread,'')='', '{$uid}', IF(FIND_IN_SET('{$uid}', IFNULL(lastread,'')), IFNULL(lastread,''), CONCAT(IFNULL(lastread,''), ',{$uid}')))";
+			$db->update_query(
+				'privatemessages',
+				['lastread' => $expr],
+				'convid = "' . $convid . '" AND toid = 0 AND folder = 2 AND dateline IN (' . implode(',', array_map('intval', $datelines)) . ')',
+				'',
+				true
+			);
+		}
+
+		if (function_exists('update_pm_count')) {
+			try {
+				$rf = new ReflectionFunction('update_pm_count');
+				if ($rf->getNumberOfParameters() >= 1) {
+					update_pm_count((int)$mybb->user['uid']);
+				} else {
+					update_pm_count();
+				}
+			} catch (Throwable $e) {
 				update_pm_count();
 			}
-		} catch (Throwable $e) {
-			update_pm_count();
 		}
+
+		update_conversations_counters((int)$mybb->user['uid']);
+		update_conversations_meta((int)$mybb->user['uid'], [$convid]);
+
+		echo json_encode([
+			'success' => 1,
+			'html' => (string)$render['html']
+		]);
+		exit;
 	}
-
-	update_conversations_meta((int)$mybb->user['uid'], [$convid]);
-	update_conversations_counters((int)$mybb->user['uid'], [$convid]);
-
-	echo json_encode([
-		'success' => 1,
-		'message' => $lang->symposium_messages_deleted_successfully
-	]);
-	exit;
 }
 
 function get_conversation_id()
