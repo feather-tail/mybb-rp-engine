@@ -16,6 +16,7 @@ $plugins->add_hook('class_moderation_delete_thread', 'positivity_moderation_dele
 
 $plugins->add_hook('postbit', 'positivity_postbit');
 $plugins->add_hook('member_profile_end', 'positivity_member_profile_end');
+$plugins->add_hook('postbit_prev', 'positivity_postbit');
 $plugins->add_hook('memberlist_user', 'positivity_memberlist_user');
 $plugins->add_hook('usercp_end', 'positivity_usercp_end');
 
@@ -821,17 +822,18 @@ function positivity_postbit(&$post)
 		return;
 	}
 
-	if(empty($post['replink'])) {
-		return;
-	}
-
-	if(strpos($post['replink'], 'positivity.php?uid=') !== false) {
+	if(!empty($post['replink']) && strpos($post['replink'], 'positivity.php?uid=') !== false) {
 		return;
 	}
 
 	$positiv = isset($post['positiv']) ? (int)$post['positiv'] : positivity_get_user_positiv($uid);
 	$block = positivity_build_block($uid, $positiv);
 	if($block === '') {
+		return;
+	}
+
+	if(!isset($post['replink']) || $post['replink'] === '') {
+		$post['replink'] = $block;
 		return;
 	}
 
